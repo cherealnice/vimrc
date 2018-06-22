@@ -49,6 +49,7 @@ set colorcolumn=80
 set statusline+=%F
 set clipboard=unnamed
 set cursorline
+set hidden
 augroup BgHighlight
   autocmd!
   autocmd WinEnter * set cul
@@ -71,6 +72,12 @@ nnoremap <C-J> <C-W><C-J>
 nnoremap <C-K> <C-W><C-K>
 nnoremap <C-L> <C-W><C-L>
 nnoremap <C-H> <C-W><C-H>
+
+" SideSearch current word and return to original window
+nnoremap <Leader>ss :SideSearch <C-r><C-w><CR> | wincmd p
+
+" Create an shorter `SS` command
+command! -complete=file -nargs=+ SS execute 'SideSearch <args>'
 
 " other javascript libraries
 let g:used_javascript_libs = 'react, flux, ramda, underscore'
@@ -112,22 +119,9 @@ let g:ale_sign_column_always = 1
 let g:airline#extensions#ale#enabled = 1
 
 " Lightline
-let g:lightline = {
-      \ 'component_function': {
-      \   'filetype': 'MyFiletype',
-      \   'fileformat': 'MyFileformat',
-      \ }
-      \ }
 
-function! MyFiletype()
-  return winwidth(0) > 70 ? (strlen(&filetype) ? &filetype . ' ' . WebDevIconsGetFileTypeSymbol() : 'no ft') : ''
-endfunction
-
-function! MyFileformat()
-  return winwidth(0) > 70 ? (&fileformat . ' ' . WebDevIconsGetFileFormatSymbol()) : ''
-endfunction
 let g:lightline = {
-  \   'colorscheme': 'Dracula',
+  \   'colorscheme': 'seoul256',
   \   'active': {
   \     'left':[ [ 'mode', 'paste' ],
   \              [ 'gitbranch', 'readonly', 'filename', 'modified' ]
@@ -138,14 +132,23 @@ let g:lightline = {
 	\   },
   \   'component_function': {
   \     'gitbranch': 'fugitive#head',
+  \     'filename': 'FilenameForLightline',
   \   }
   \ }
+
+" Show full path of filename
+function! FilenameForLightline()
+    return expand('%')
+endfunction
+
 let g:lightline.separator = {
 	\   'left': '', 'right': ''
   \}
+
 let g:lightline.subseparator = {
 	\   'left': '', 'right': '' 
   \}
+
 set noshowmode
 
 " Javascript
@@ -163,6 +166,7 @@ let NERDTreeShowHidden=1
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | exe 'NERDTree' argv()[0] | wincmd p | ene | endif
 map <leader>nn :NERDTreeToggle<CR>
+map <leader>mm :NERDTreeFind<cr>
 " NERDTress File highlighting
 function! NERDTreeHighlightFile(extension, fg, bg, guifg, guibg)
  exec 'autocmd filetype nerdtree highlight ' . a:extension .' ctermbg='. a:bg .' ctermfg='. a:fg .' guibg='. a:guibg .' guifg='. a:guifg
